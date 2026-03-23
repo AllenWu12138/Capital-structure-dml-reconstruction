@@ -18,5 +18,8 @@ How do firm-level characteristics affect capital structure decisions, and how do
 - 'output/': figures and tables
 - 'docs/': methodology and notes
 
+## Current Status
+In progress: Currently reconstructing the original dissertation workflow from Stata to Python.
+
 ## Author
 Lingzhou Wu
