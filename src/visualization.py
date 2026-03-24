@@ -8,7 +8,7 @@ data = pd.read_excel('data/processed/Corruption.xlsx')
 data = data.rename(columns={'Unnamed: 0':'Country'})
 data.set_index('Country',inplace=True)
 corruption = data.T
-corruption.index = corruption.index.str.replace('v','').astype(int)
+corruption.index = corruption.index.str.replace('v','',regex=False).astype(int)
 sns.set_theme(style='white')
 for column in corruption.columns:
     sns.lineplot(
