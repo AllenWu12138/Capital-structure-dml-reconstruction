@@ -21,5 +21,8 @@ How do firm-level characteristics affect capital structure decisions, and how do
 ## Current Status
 In progress: Currently reconstructing the original dissertation workflow from Stata to Python.
 
+##
+During the Python replication process, I verified the source metadata for the macroeconomic controls used in the original Stata workflow and found that some variables had been mislabeled. In particular, the variable labeled as EIR corresponds to annual CPI inflation, and the file labeled as GDP growth corresponds to current account balance as a percentage of GDP. This repository therefore separates the original implementation from a corrected specification based on validated source definitions.
+
 ## Author
 Lingzhou Wu
