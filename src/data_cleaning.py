@@ -159,12 +159,32 @@ def build_firm_panel(raw_dir,processed_dir):
     print(FIRM)
     FIRM.to_csv(processed_dir / 'FIRM.csv',index=False)
 
+# build baseline panel
+
+def final_data(firm_df,country_df,processed_dir):
+    baseline_data = pd.merge(
+        firm_df,
+        country_df,
+        on=['fic','fyear'],
+        how='left'
+    )
+    cpi_missing = baseline_data[baseline_data['CPI'].isna()]
+    assert baseline_data['corr'].isna().sum() == 0 , 'Unexpected NaNs found in corruption data'
+    assert baseline_data['cab'].isna().sum() == 0 , 'Unexpected NaNs found in Cab data'
+    missing_fics = cpi_missing['fic'].unique()
+    assert list(missing_fics) == ['JPN'], f'Expected only JPN has missing data, but found:{missing_fics}'
+    missing_years = sorted(cpi_missing['fyear'].unique())
+    assert missing_years ==[2021,2022,2023,2024],f'Expected only 2021-2024 missing, but found:{missing_years}'
+    baseline_data.to_csv(processed_dir / 'baseline_data.csv',index=False)
+    return baseline_data
+
 def main():
     cpi = clean_cpi(RAW_DIR,PROCESSED_DIR)
     cab = clean_cab(RAW_DIR,PROCESSED_DIR)
     corruption = clean_corruption(PROCESSED_DIR)
     country = build_country_panel(cpi,corruption,cab,PROCESSED_DIR)
     firm = build_firm_panel(RAW_DIR,PROCESSED_DIR)
+    baseline_data = final_data(firm,country,PROCESSED_DIR)
 
 if __name__ == '__main__':
     main()
