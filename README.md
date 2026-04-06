@@ -1,28 +1,40 @@
-# Capital-structure-dml-replication
+# Capital-Structure-DML-Reconstruction
 
 ## Project Overview
-Python replication and extension of my MSc dissertation on capital structure determinants using econometric and machine learning methods.
+This repository reconstructs and extends the empirical workflow of my MSc dissertation on capital structure determinants in Python.
+
+The original dissertation compared traditional econometric models with machine learning methods, including LASSO and Double Machine Learning (DML). This repository rebuilds that workflow in Python while documenting points where the original Stata pipeline was ambiguous or where variable definitions required correction.
 
 ## Research Question
-How do firm-level characteristics affect capital structure decisions, and how does a machine learning approach compare with traditional econometric models?
+How do firm-level characteristics affect capital structure decisions, and how do machine learning methods such as LASSO and Double Machine Learning compare with traditional econometric approaches?
 
 ## Methods
-- Data cleaning and panel construction
-- Fixed effects/ random effects models
+- Panel data construction
+- Variable reconstruction and validation
+- OLS / fixed effects / random effects models
 - LASSO
 - Double Machine Learning (DML)
 
 ## Repository Structure
-- 'data/': raw and processed data
-- 'src/': reusable Python scripts
-- 'output/': figures and tables
-- 'docs/': methodology and notes
+- `data/`: raw and processed data
+- `src/`: reusable Python scripts
+- `output/`: figures and tables
+- `docs/`: methodology notes and reconstruction comments
 
-## Current Status
-In progress: Currently reconstructing the original dissertation workflow from Stata to Python.
+## Important Data Note
+During the reconstruction process, I checked the data for the macroeconomic controls used in the original Stata workflow and found that some variables had been mislabeled.
 
-##
-During the Python replication process, I verified the source metadata for the macroeconomic controls used in the original Stata workflow and found that some variables had been mislabeled. In particular, the variable labeled as EIR corresponds to annual CPI inflation, and the file labeled as GDP growth corresponds to current account balance as a percentage of GDP. This repository therefore separates the original implementation from a corrected specification based on validated source definitions.
+In particular:
+- the variable labeled as `EIR` corresponds to annual CPI inflation
+- the file labeled as `GDP growth` corresponds to current account balance as a percentage of GDP
+- some intermediate merge logic in the original Stata workflow could not be fully verified, which limits exact replication of several original outputs
+
+This repository therefore distinguishes between:
+1. the original dissertation implementation, and
+2. a corrected specification based on validated source definitions
+
+## Project Goal
+The goal of this repository is to reconstruct the dissertation workflow as faithfully as possible, while also providing a corrected and better-documented Python pipeline for subsequent analysis and extension.
 
 ## Author
 Lingzhou Wu
