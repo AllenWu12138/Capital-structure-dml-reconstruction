@@ -3,10 +3,8 @@
 ## Project Overview
 This repository reconstructs and extends the empirical workflow of my MSc dissertation on capital structure determinants in Python.
 
-The original dissertation compared traditional econometric models with machine learning methods, including LASSO and Double Machine Learning (DML). This repository rebuilds that workflow in Python while documenting points where the original Stata pipeline was ambiguous or where variable definitions required correction.
-
 ## Research Question
-How do firm-level characteristics affect capital structure decisions, and how do machine learning methods such as LASSO and Double Machine Learning compare with traditional econometric approaches?
+How do firm-level characteristics affect the capital structure decisions of companies, and how do machine learning method such as LASSO and Double Machine Learning differ from traditional econometric approaches?
 
 ## Methods
 - Panel data construction
