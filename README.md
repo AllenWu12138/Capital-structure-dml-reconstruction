@@ -23,7 +23,7 @@ How do firm-level characteristics affect the capital structure decisions of comp
 During the reconstruction process, I checked the data for the macroeconomic controls used in the original Stata workflow and found that some variables had been mislabeled.
 
 In particular:
-- the variable labeled as `EIR` corresponds to annual CPI inflation
+- the variable labeled as `EIR` corresponds to actual annual CPI inflation
 - the file labeled as `GDP growth` corresponds to current account balance as a percentage of GDP
 - some intermediate merge logic in the original Stata workflow could not be fully verified, which limits exact replication of several original outputs
 
