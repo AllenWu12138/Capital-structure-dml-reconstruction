@@ -8,90 +8,101 @@ RAW_DIR = BASE_DIR / 'data' / 'raw'
 PROCESSED_DIR = BASE_DIR / 'data' / 'processed'
 PROCESSED_DIR.mkdir(parents=True,exist_ok=True)
 
-# clean CPI
-def clean_cpi(raw_dir,processed_dir):
-    cpi = pd.read_csv(raw_dir / 'CPI.csv')
-    print(cpi.shape)
-    print(cpi.columns)
-    print(cpi.head())
-    required_cols = ['TIME_PERIOD','REF_AREA','OBS_VALUE','Transformation']
-    assert all(col in cpi.columns for col in required_cols),'missing required columns'
-    cpi = cpi[cpi['Transformation']!='Not applicable'].copy()
-    cpi = cpi.rename(columns={
-        'OBS_VALUE':'CPI',
-        'REF_AREA':'fic',
-        'TIME_PERIOD':'fyear'
-        })
-    cpi = cpi[['CPI','fic','fyear']].copy()
-    print(cpi.head())
-    cpi.info()
-    assert cpi['fic'].notna().all(),'cpi fic contains missing values'
-    assert cpi['fyear'].notna().all(), 'cpi fyear contains missing values'
-    assert cpi['CPI'].notna().all(),'cpi column contains missing values'
-    assert cpi.duplicated(subset=['fic','fyear']).sum() == 0, 'cpi has duplicated fic-fyear keys'
-    cpi.to_csv(processed_dir / 'CPI.csv',index=False)
-    return cpi
+# clean EIR
+def clean_EIR(raw_dir,processed_dir):
+    EIR = pd.read_csv(raw_dir/ 'EIR.csv')
+    print(EIR.head(7))
+    EIR['COUNTRY'] = EIR['COUNTRY'].replace({
+        'United States':'USA',
+        'United Kingdom':'GBR',
+        'France':'FRA',
+        'Japan':'JPN',
+        'South Africa':'ZAF',
+        'Brazil':'BRA',
+        'Korea, Republic of':'KOR'})
+    year = {str(y):str(y-1) for y in range(2010,2026)}
+    EIR = EIR.rename(columns=year)
+    EIR = EIR.drop(columns='2009')
+    print(EIR.columns)
+    cols = ['COUNTRY','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024']
+    EIR = EIR[cols].copy()
+    EIR = EIR.rename(columns={'COUNTRY':'fic'}).copy()
+    EIR = EIR.set_index('fic')
+    EIR = EIR.T
+    EIR.index = EIR.index.astype(int)
+    print(EIR.head())
+    EIR=EIR.reset_index()
+    EIR = EIR.rename(columns={'index':'fyear'})
+    EIR = EIR.melt(id_vars='fyear',var_name='fic',value_name='EIR')
+    EIR['fyear']=pd.to_numeric(EIR['fyear'],errors='coerce').astype(int)
+    EIR['EIR']=pd.to_numeric(EIR['EIR'],errors='coerce')
+    assert EIR['EIR'].notna().all(),'EIR contains missing values'
+    assert EIR['fic'].notna().all(),'EIR fic contains missing values'
+    assert EIR['fyear'].notna().all(),'EIR fyear contains missing values'
+    assert EIR.duplicated(subset=['fic','fyear']).sum() == 0, 'EIR has duplicated fic-fyear keys'
+    EIR.to_csv(processed_dir / 'EIR.csv',index=False)
+    return EIR
 
-# clean cab_pct_gdp
-def clean_cab(raw_dir,processed_dir):
-    cab = pd.read_csv(raw_dir / 'current_account_balance_pct_gdp.csv.csv')
-    print(cab.shape)
-    print(cab.columns)
-    print(cab.head())
-    required_cols = ['OBS_VALUE','REF_AREA','TIME_PERIOD']
-    assert all(col in cab.columns for col in required_cols), 'cab contains missing columns'
-    cab = cab.rename(columns={
-        'OBS_VALUE':'cab',
-        'REF_AREA':'fic',
-        'TIME_PERIOD':'fyear'
-        })
-    cab = cab[['cab','fic','fyear']].copy()
-    print(cab.head())
-    cab.info()
-    assert cab['fic'].notna().all(),'cab fic contains missing values'
-    assert cab['fyear'].notna().all(), 'cab fyear contains missing values'
-    assert cab['cab'].notna().all(),'cab column contains missing values'
-    assert cab.duplicated(subset = ['fic','fyear']).sum() == 0, 'cab has duplicated fic-fyear keys'
-    cab.to_csv(processed_dir / 'cab_pct_gdp.csv',index=False)
-    return cab
+# clean GDP_growth_rate
+def clean_GDP(raw_dir,processed_dir):
+    GDP = pd.read_excel(raw_dir / 'GDP_growth_rate.xlsx')
+    print(GDP.head())
+    print(GDP.columns)
+    GDP = GDP.rename(columns={' ':'fic'}).copy()
+    GDP['fic'] = GDP['fic'].replace({
+        'France':'FRA',
+        'United States':'USA',
+        'United Kingdom':'GBR',
+        'South Africa':'ZAF',
+        'Japan':'JPN',
+        'Korea, Rep.':'KOR',
+        'Brazil':'BRA'
+    })
+    GDP = GDP.drop(columns='Unnamed: 11',index=7)
+    GDP = GDP.melt(id_vars='fic',var_name='fyear',value_name='GDP')
+    GDP['fyear']=pd.to_numeric(GDP['fyear'],errors='coerce').astype(int)
+    GDP['GDP']=pd.to_numeric(GDP['GDP'],errors='coerce')
+    assert GDP['GDP'].notna().all(),'GDP contains missing values'
+    assert GDP['fic'].isna().sum()==0,'GDP fic contians missing value'
+    assert GDP['fyear'].isna().sum()==0,'GDP fyear contains missing value'
+    assert GDP['GDP'].notna().all(), 'GDP contains missing values'
+    assert GDP.duplicated(subset=['fic','fyear']).sum() == 0, 'GDP has duplicated fic-fyear keys'
+    GDP.to_csv(processed_dir / 'GDP.csv',index=False)
+    return GDP
 
 # clean corruption
 def clean_corruption(processed_dir):
-    corr_raw = pd.read_excel(processed_dir / 'Corruption.xlsx')
-    print(corr_raw.shape)
-    print(corr_raw.columns)
-    print(corr_raw.head())
-    corr_raw = corr_raw.rename(columns={'Unnamed: 0':'fic'})
-    corr_raw = corr_raw.set_index('fic')
-    corr = corr_raw.T
-    corr.index = corr.index.astype(str).str.replace('v','',regex=False).astype(int)
-    print(corr.head())
-    corr = corr.reset_index()
-    corr = corr.rename(columns={'index':'fyear'})
-    corr = corr.melt(id_vars='fyear',var_name='fic',value_name='corr')
-    print(corr.head())
-    assert corr['fic'].notna().all(),'corr fic contains missing values'
-    assert corr['fyear'].notna().all(),'corr fyear contains missing values'
-    assert corr.duplicated(subset=['fic','fyear']).sum() == 0, 'corr has duplicated fic-fyear keys'
-    return corr
+    Corruption_raw = pd.read_excel(processed_dir / 'Corruption.xlsx')
+    print(Corruption_raw.shape)
+    print(Corruption_raw.columns)
+    print(Corruption_raw.head())
+    Corruption_raw = Corruption_raw.rename(columns={'Unnamed: 0':'fic'})
+    Corruption_raw = Corruption_raw.set_index('fic')
+    Corruption = Corruption_raw.T
+    Corruption.index = Corruption.index.astype(str).str.replace('v','',regex=False).astype(int)
+    print(Corruption.head())
+    Corruption = Corruption.reset_index()
+    Corruption = Corruption.rename(columns={'index':'fyear'})
+    Corruption = Corruption.melt(id_vars='fyear',var_name='fic',value_name='Corruption')
+    print(Corruption.head())
+    assert Corruption['fic'].notna().all(),'Corruption fic contains missing values'
+    assert Corruption['fyear'].notna().all(),'Corruption fyear contains missing values'
+    assert Corruption.duplicated(subset=['fic','fyear']).sum() == 0, 'Corruption has duplicated fic-fyear keys'
+    return Corruption
 
 # build country panel
-def build_country_panel(cpi,corr,cab,processed_dir):
-    country = pd.merge(corr,cpi,on=['fic','fyear'],how='left')
-    country = pd.merge(country,cab,on=['fic','fyear'],how='left')
+def build_country_panel(EIR,Corruption,GDP,processed_dir):
+    country = pd.merge(Corruption,EIR,on=['fic','fyear'],how='left')
+    country = pd.merge(country,GDP,on=['fic','fyear'],how='left')
     print(country.head())
     print(country.shape)
     print(country.columns.tolist())
     print(country.dtypes)
     print(country.isna().sum())
-
-    #--TO DO--
-    # v1: Keep the 4 missing values in the raw data.
-    # v2: Replace incorrect variables, impute missing data, and revert assert to == 0.
-    assert country.isna().sum().sum() == 4 , 'missing values still exist in the dataframe'
+    assert country.isna().sum().sum() == 0 , 'missing values still exist in the dataframe'
     assert country.duplicated(subset=['fic','fyear']).sum() == 0, 'country has duplicated fic-fyear keys'
     print(country.groupby('fic')['fyear'].nunique().sort_values())
-    print(country[['corr', 'CPI', 'cab']].describe())
+    print(country[['Corruption', 'EIR', 'GDP']].describe())
     country.to_csv(processed_dir / 'country.csv',index=False)
     return country
 
@@ -101,7 +112,7 @@ def winsorize(s,lower_q=0.05,upper_q=0.95):
     upper = s.quantile(upper_q)
     return s.clip(lower = lower, upper = upper )
 
-def build_firm_panel(raw_dir,processed_dir):
+def build_firm_panel(raw_dir, processed_dir):
     USA = pd.read_stata(raw_dir / 'America.dta')
     global_df = pd.read_stata(raw_dir / 'G.dta')
     print(USA.head())
@@ -124,6 +135,7 @@ def build_firm_panel(raw_dir,processed_dir):
     assert global_df.duplicated(subset=['gvkey','fyear']).sum() == 0 , 'Global still has duplicated gvkey-fyear key'
     FIRM = pd.concat([USA,global_df],ignore_index=True)
     print(FIRM.head())
+    FIRM = FIRM.drop_duplicates(subset=['gvkey','fyear'],keep='first').copy()
     assert FIRM.duplicated(subset=['gvkey','fyear']).sum() == 0, 'FIRM has duplicated gvkey-fyear key'
     FIRM['num_year'] = FIRM.groupby('gvkey')['fyear'].transform('nunique')
     FIRM = FIRM[FIRM['num_year']==15].copy()
@@ -155,11 +167,10 @@ def build_firm_panel(raw_dir,processed_dir):
         lambda s: winsorize(s,0.05,0.95)
     )
     print(FIRM.columns)
-    FIRM = FIRM[['Age', 'LEV', 'SIZE', 'PROF', 'NDTS', 'LIQ', 'TANG','fyear','fic','gvkey']].copy()
+    FIRM = FIRM[['Age', 'LEV', 'SIZE', 'PROF', 'NDTS', 'LIQ', 'TANG','fyear','fic','gvkey','gsector']].copy()
     print(FIRM)
     FIRM.to_csv(processed_dir / 'FIRM.csv',index=False)
-
-# build baseline panel
+    return FIRM
 
 def final_data(firm_df,country_df,processed_dir):
     baseline_data = pd.merge(
@@ -168,21 +179,17 @@ def final_data(firm_df,country_df,processed_dir):
         on=['fic','fyear'],
         how='left'
     )
-    cpi_missing = baseline_data[baseline_data['CPI'].isna()]
-    assert baseline_data['corr'].isna().sum() == 0 , 'Unexpected NaNs found in corruption data'
-    assert baseline_data['cab'].isna().sum() == 0 , 'Unexpected NaNs found in Cab data'
-    missing_fics = cpi_missing['fic'].unique()
-    assert list(missing_fics) == ['JPN'], f'Expected only JPN has missing data, but found:{missing_fics}'
-    missing_years = sorted(cpi_missing['fyear'].unique())
-    assert missing_years ==[2021,2022,2023,2024],f'Expected only 2021-2024 missing, but found:{missing_years}'
+    assert baseline_data['EIR'].isna().sum() == 0, 'Unexpected NaNs found in EIR data'
+    assert baseline_data['Corruption'].isna().sum() == 0 , 'Unexpected NaNs found in corruption data'
+    assert baseline_data['GDP'].isna().sum() == 0 , 'Unexpected NaNs found in GDP data'
     baseline_data.to_csv(processed_dir / 'baseline_data.csv',index=False)
     return baseline_data
 
 def main():
-    cpi = clean_cpi(RAW_DIR,PROCESSED_DIR)
-    cab = clean_cab(RAW_DIR,PROCESSED_DIR)
+    EIR = clean_EIR(RAW_DIR,PROCESSED_DIR)
+    GDP = clean_GDP(RAW_DIR,PROCESSED_DIR)
     corruption = clean_corruption(PROCESSED_DIR)
-    country = build_country_panel(cpi,corruption,cab,PROCESSED_DIR)
+    country = build_country_panel(EIR,corruption,GDP,PROCESSED_DIR)
     firm = build_firm_panel(RAW_DIR,PROCESSED_DIR)
     baseline_data = final_data(firm,country,PROCESSED_DIR)
 
