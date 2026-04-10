@@ -25,7 +25,7 @@ for col in ['Corruption','EIR','GDP']:
     plt.xlabel('Year')
     plt.ylabel(str(col))
     plt.subplots_adjust(bottom=0.25)
-    # plt.savefig(OUTPUT_DIR / f'Figure{i}-{col}-across-countries.png',dpi=300, bbox_inches='tight')
+    plt.savefig(OUTPUT_DIR / f'Figure{i}-{col}-across-countries.png',dpi=300, bbox_inches='tight')
     plt.show()
     plt.close()
     i += 1
