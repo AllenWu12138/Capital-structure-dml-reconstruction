@@ -179,6 +179,14 @@ def final_data(firm_df,country_df,processed_dir):
         on=['fic','fyear'],
         how='left'
     )
+    baseline_data.loc[baseline_data['gsector']==15,'IND2']=1
+    baseline_data.loc[baseline_data['gsector']==20,'IND3']=1
+    baseline_data.loc[baseline_data['gsector']==25,'IND4']=1
+    baseline_data.loc[baseline_data['gsector']==30,'IND5']=1
+    baseline_data.loc[baseline_data['gsector']==35,'IND6']=1
+    baseline_data.loc[baseline_data['gsector']==45,'IND7']=1
+    baseline_data.loc[baseline_data['gsector']==50,'IND8']=1
+    baseline_data[['IND2','IND3','IND4','IND5','IND6','IND7','IND8']]= baseline_data[['IND2','IND3','IND4','IND5','IND6','IND7','IND8']].fillna(0)
     assert baseline_data['EIR'].isna().sum() == 0, 'Unexpected NaNs found in EIR data'
     assert baseline_data['Corruption'].isna().sum() == 0 , 'Unexpected NaNs found in corruption data'
     assert baseline_data['GDP'].isna().sum() == 0 , 'Unexpected NaNs found in GDP data'
