@@ -2,6 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+import statsmodels.api as sm
 
 # PATH 
 BASE_DIR = Path('/Users/wulingzhou/VS_code_for_Python/capital-structure-dml-replication')
@@ -73,3 +75,35 @@ for country in country_order:
     plt.savefig(OUTPUT_DIR / f'Correlation_Matrix_for_{country}.png',dpi=300,bbox_inches='tight')
     plt.show()
     plt.close()
+
+# VIF for studied countries
+
+VIF_vars = ['SIZE','PROF','NDTS','LIQ','TANG','Age']
+X_all = baseline_data[VIF_vars].dropna().copy()
+X_all = sm.add_constant(X_all)
+vif_all = pd.DataFrame({
+    'Variable': X_all.columns,
+    'VIF': [variance_inflation_factor(X_all.values, i) for i in range(X_all.shape[1])]
+})
+print(vif_all)
+vif_all.to_excel(OUTPUT_DIR/'VIF_all_countries.xlsx')
+
+# VIF by Country
+
+country_order = ['GBR','USA','FRA','JPN','KOR','BRA','ZAF']
+all_vif = []
+for country in country_order:
+    country_data = baseline_data.loc[baseline_data['fic'] == country,VIF_vars].dropna().copy()
+    X= sm.add_constant(country_data)
+    vif_table = pd.DataFrame({
+        'Variable': X.columns,
+        'VIF': [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+    })
+    vif_table = vif_table[vif_table['Variable'] != 'const'].copy()
+    vif_table['Country'] = country
+    all_vif.append(vif_table)
+
+final_vif_table = pd.concat(all_vif, ignore_index=True)
+vif_pivot = final_vif_table.pivot(index='Variable', columns='Country', values='VIF')
+print(vif_pivot)
+vif_pivot.to_excel(OUTPUT_DIR/'VIF_by_country.xlsx')
