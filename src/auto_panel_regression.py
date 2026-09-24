@@ -24,7 +24,6 @@ def auto_panel_regression(data,y,exog,ind_dummies):
         exog_with_ind = exog
 
     # fit baseline models (unadjusted stndard errors)
-
     fe_model = PanelOLS(y,exog,entity_effects=True)
     fe_res = fe_model.fit(cov_type='unadjusted')
     re_model = RandomEffects(y,exog_with_ind)
@@ -33,21 +32,19 @@ def auto_panel_regression(data,y,exog,ind_dummies):
     pooled_res = pooled_model.fit()
 
     # extract f-test p-value
-
     f_pvalue =fe_res.f_pooled.pval
 
     # construct lm-test
-
     resids = pooled_res.resids
-    T = 10
-    N = len(resids.index.levels[0])
+    T = resids.groupby(level=0).size()
+    N = T.size
+    n_obs = len(resids)
     sum_seq_res = (resids**2).sum()
     sum_entity_res = (resids.groupby(level=0).sum()**2).sum()
-    LM_stat = ((N*T)/(2*(T-1)))*(((sum_entity_res/sum_seq_res)-1)**2)
+    LM_stat = ((n_obs**2)/(2*(T*(T-1)).sum()))*(((sum_entity_res/sum_seq_res)-1)**2)
     lm_pvalue = stats.chi2.sf(LM_stat,1)
 
     # construct hausman-test
-
     b_fe = fe_res.params
     b_re = re_res.params
     v_fe = fe_res.cov
@@ -62,13 +59,12 @@ def auto_panel_regression(data,y,exog,ind_dummies):
     v_re_sub = v_re.loc[common_vars,common_vars]
     diff = b_fe_sub - b_re_sub
     cov_diff = v_fe_sub - v_re_sub
-    inv_cov_diff = la.inv(cov_diff)
+    inv_cov_diff = la.pinv(cov_diff)
     hausman_stat = diff.dot(inv_cov_diff).dot(diff)
     df_hausman = len(common_vars)
     hausman_pvalue = stats.chi2.sf(hausman_stat,df_hausman)
 
     # model selection
-
     if f_pvalue >= 0.05 and lm_pvalue >= 0.05:
         print('Individual effects are not significant. Pooled OLS is recommended')
         final_model_name = 'Pooled'
