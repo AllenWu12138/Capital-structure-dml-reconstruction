@@ -138,7 +138,7 @@ def build_firm_panel(raw_dir, processed_dir):
     FIRM = FIRM.drop_duplicates(subset=['gvkey','fyear'],keep='first').copy()
     assert FIRM.duplicated(subset=['gvkey','fyear']).sum() == 0, 'FIRM has duplicated gvkey-fyear key'
     FIRM['num_year'] = FIRM.groupby('gvkey')['fyear'].transform('nunique')
-    FIRM = FIRM[FIRM['num_year']>=15].copy()
+    FIRM = FIRM[FIRM['num_year']>=8].copy()
     FIRM['ipoyear'] = FIRM['ipodate'].dt.year
     print((FIRM['at']<=0).sum())
     print((FIRM['lct']<=0).sum())
