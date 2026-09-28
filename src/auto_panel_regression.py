@@ -7,6 +7,7 @@ from linearmodels.panel import compare
 from scipy import stats
 import numpy.linalg as la
 
+
 def auto_panel_regression(data,y,exog,ind_dummies):
     y = data[y]
     exog = sm.add_constant(data[exog])
@@ -88,7 +89,7 @@ PROCESSED_DIR = BASE_DIR / 'data' / 'processed'
 OUTPUT_DIR = BASE_DIR / 'output'
 OUTPUT_DIR.mkdir(parents=True,exist_ok=True)
 
-data = pd.read_csv('/Users/wulingzhou/VS_code_for_Python/capital-structure-dml-replication/data/processed/baseline_data.csv')
+data = pd.read_csv(PROCESSED_DIR / 'baseline_data.csv')
 data = data[data['fyear']<=2019].copy()
 ind_dummies = ['IND_15','IND_20','IND_25','IND_30','IND_35','IND_45','IND_50']
 data =data.set_index(['gvkey','fyear'])
