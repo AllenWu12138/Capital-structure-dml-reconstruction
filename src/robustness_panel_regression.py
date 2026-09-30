@@ -54,7 +54,7 @@ def robustness_panel_regression(data,RE_Countries,Countries,exog,ind_dummies):
             all_models[i]=fe_res
     robustness_panel_regression = compare(all_models,stars=True)
     print(robustness_panel_regression)
-    output_csv = OUTPUT_DIR / 'regression_robust.csv'
+    output_csv = OUTPUT_DIR / 'robustness_panel_regression.csv'
     with open(output_csv, 'w') as f:
         f.write(str(robustness_panel_regression.summary.as_csv()))
     return robustness_panel_regression
