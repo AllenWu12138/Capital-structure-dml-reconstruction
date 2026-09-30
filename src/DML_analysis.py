@@ -12,9 +12,7 @@ PROCESSED_DIR = BASE_DIR / 'data' / 'processed'
 OUTPUT_DIR = BASE_DIR / 'output'
 OUTPUT_DIR.mkdir(parents=True,exist_ok=True)
 
-def run_dml(processed_dir, output_dir):
-    data = pd.read_csv(processed_dir/'baseline_data.csv')
-    data = data[data['fyear']<=2019].copy()
+def run_dml(data, output_dir,name):
     year_dummies = pd.get_dummies(data=data['fyear'],prefix='year',drop_first=True,dtype=float)
     data = pd.concat([data,year_dummies],axis=1)
     year_cols = year_dummies.columns.tolist()
@@ -38,7 +36,6 @@ def run_dml(processed_dir, output_dir):
             dml_plr_lasso.fit(store_models = True)
             summary = dml_plr_lasso.summary.loc[var]
             results.append({
-                'period': '2010-2019',
                 'country': i,
                 'treatment': var,
                 'coef': summary['coef'],
@@ -50,11 +47,15 @@ def run_dml(processed_dir, output_dir):
             })
     results_df = pd.DataFrame(results)
     print(results_df)
-    results_df.to_csv(output_dir/'DML_results.csv',index=False)
+    results_df.to_csv(output_dir/f'{name}_results.csv',index=False)
     return results_df
 
+data =  pd.read_csv(PROCESSED_DIR/'baseline_data.csv')
+main_data = data[data['fyear']<=2019].copy()
+robust_data = data[data['fyear']>2019].copy()
+full_data = data.copy()
+
 if __name__ == '__main__':
-    results_df = run_dml(
-        PROCESSED_DIR,
-        OUTPUT_DIR
-    )
+    results1_df = run_dml(main_data,OUTPUT_DIR,name='DML')
+    results2_df = run_dml(robust_data,OUTPUT_DIR,name='DML_robust')
+    results3_df = run_dml(full_data,OUTPUT_DIR,name='DML_fullsample')
