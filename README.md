@@ -14,10 +14,8 @@ How do firm-level characteristics affect the capital structure decisions of comp
 - Double Machine Learning (DML)
 
 ## Repository Structure
-- `data/`: raw and processed data
 - `src/`: reusable Python scripts
-- `output/`: figures and tables
-- `docs/`: methodology notes and reconstruction comments
+- `Output/`: figures and tables
 
 ## Important Data Note
 During the reconstruction process, I checked the data for the macroeconomic controls used in the original Stata workflow and found that some variables had been mislabeled.
