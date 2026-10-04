@@ -29,6 +29,9 @@ This repository therefore distinguishes between:
 1. the original dissertation implementation, and
 2. a corrected specification based on validated source definitions
 
+## Data Availability
+The firm-level financial data used in this project are derived from licensed commercial databases and therefore are not redistributed in this repository. Publicly available macroeconomic variables were obtained from sources including the World Bank. The scripts in `src/` document the data-processing and empirical workflow used in the reconstruction.
+
 ## Project Goal
 The goal of this repository is to reconstruct the dissertation workflow as faithfully as possible, while also providing a corrected and better-documented Python pipeline for subsequent analysis and extension.
 
